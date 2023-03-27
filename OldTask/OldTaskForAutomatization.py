@@ -45,7 +45,7 @@ def create_db():
 def generate_result():
     conn = sqlite3.connect('ships1.db', timeout=10)
     cur = conn.cursor()
-    """
+    
     for i in range(1, 21):
         weapon = [random.randint(1, 20) for i in range(5)]
         weapon.insert(0, f'Weapon-{i}')
@@ -66,7 +66,7 @@ def generate_result():
         cur.execute('''INSERT INTO engines VALUES(?,?,?);''', engine)
         conn.commit()
         engine = []
-    """
+    
 
     for i in range(1, 201):
         ship = [f'Ship-{i}']
