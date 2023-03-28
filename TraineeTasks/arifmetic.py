@@ -16,7 +16,7 @@ def add_gold(value):
 """
 
 
-def add_some_gold(value):
+def add_some_gold(value: int) -> str:
     need_gold = value
     func_works_gold = 1
     maximum_gold = 1
