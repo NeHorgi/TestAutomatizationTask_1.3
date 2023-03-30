@@ -69,4 +69,3 @@ def create_and_fill_db():
         cur.execute('''INSERT INTO ships VALUES(?,?,?,?);''', ship)
         conn.commit()
 
-    return 'ships.db'
