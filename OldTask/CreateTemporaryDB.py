@@ -5,8 +5,7 @@ from CreateDB import create_and_fill_db
 
 
 def create_temporary_db():
-    data_base = 'ships.db'
-    conn = sqlite3.connect(data_base)
+    conn = sqlite3.connect('ships.db')
     cur = conn.cursor()
 
     cur.execute('''ATTACH DATABASE 'C:\code\AutomatizationTaskRework\OldOne\changed_ships_db' AS changed_ships;''')
