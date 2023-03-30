@@ -112,3 +112,5 @@ def create_temporary_db():
         elif column == 2:
             cur1.execute(f'''UPDATE engines SET type = '{random.randint(1, 20)}' WHERE engine = '{changed_engine}';''')
         conn1.commit()
+    
+    return 'changed_ships_db'
