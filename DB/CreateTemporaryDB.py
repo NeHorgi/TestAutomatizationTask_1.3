@@ -12,7 +12,6 @@ def create_temporary_db():
     cur = conn.cursor()
 
     cur.execute('''ATTACH DATABASE 'C:\code\AutomatizationTaskRework\OldOne\changed_ships_db' AS changed_ships;''')
-    conn.commit()
 
     cur.execute('''CREATE TABLE changed_ships.ships(
         ship TEXT PRIMARY KEY,
@@ -22,8 +21,6 @@ def create_temporary_db():
     ''')
 
     cur.execute('''INSERT INTO changed_ships.ships SELECT ship, weapon, hull, engine FROM ships;''')
-
-    conn.commit()
 
     cur.execute('''CREATE TABLE changed_ships.engines(
         engine TEXT PRIMARY KEY,
