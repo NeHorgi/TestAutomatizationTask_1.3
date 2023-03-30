@@ -4,8 +4,8 @@ import sqlite3
 from CreateDB import create_and_fill_db
 
 
-def create_temporary_db(db):
-    data_base = db
+def create_temporary_db():
+    data_base = 'ships.db'
     conn = sqlite3.connect(data_base)
     cur = conn.cursor()
 
