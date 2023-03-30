@@ -68,6 +68,8 @@ def create_and_fill_db():
         ship.append(random.choice(cur.fetchall())[0])
         cur.execute('''INSERT INTO ships VALUES(?,?,?,?);''', ship)
         conn.commit()
+        
+    return 'ships.db'
 
 
 
