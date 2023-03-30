@@ -113,6 +113,3 @@ def create_temporary_db(db):
         elif column == 2:
             cur1.execute(f'''UPDATE engines SET type = '{random.randint(1, 20)}' WHERE engine = '{changed_engine}';''')
         conn1.commit()
-
-
-create_temporary_db(create_and_fill_db())
