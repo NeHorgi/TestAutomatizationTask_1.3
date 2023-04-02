@@ -1,12 +1,9 @@
 import random
 import sqlite3
-
 import pytest
 
-from CreateDB import create_and_fill_db
 
-
-#@pytest.fixture(scope='session')
+@pytest.fixture(scope='session')
 def create_temporary_db():
     conn = sqlite3.connect('ships.db')
     cur = conn.cursor()
@@ -112,5 +109,5 @@ def create_temporary_db():
         elif column == 2:
             cur1.execute(f'''UPDATE engines SET type = '{random.randint(1, 20)}' WHERE engine = '{changed_engine}';''')
         conn1.commit()
-    
+
     return 'changed_ships_db'
