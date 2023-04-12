@@ -33,7 +33,13 @@ def generate_coordinates(game_time: int) -> dict:
 
 
 def extract_coordinates(coordinates: dict) -> list:
-    unic_coords = array(*coordinates.values())
-    collected_coords = collections.Counter(list(unic_coords.flatten()))
-    return sorted(collected_coords)
+    all_cords = []
+    for coordinate in coordinates.keys():
+        all_cords.append(coordinates[coordinate])
+    collected_cords = collections.Counter(array(all_cords).flatten())
+    return sorted(collected_cords)
 
+
+if __name__ == '__main__':
+    coords = generate_coordinates(2)
+    print(extract_coordinates(coords))
