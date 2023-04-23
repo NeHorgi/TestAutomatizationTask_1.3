@@ -20,7 +20,6 @@ extract_coordinates(coords)
 [0,1,2,3,4,5,6,7,8]
 """
 
-import collections
 from numpy.ma import array
 
 
@@ -34,9 +33,9 @@ def generate_coordinates(game_time: int) -> dict:
 
 def extract_coordinates(coordinates: dict) -> list:
     all_cords = []
-    for coordinate in coordinates.keys():
+    for coordinate, values in coordinates.items():
         all_cords.append(coordinates[coordinate])
-    collected_cords = collections.Counter(array(all_cords).flatten())
+    collected_cords = set(array(all_cords).flatten())
     return sorted(collected_cords)
 
 
