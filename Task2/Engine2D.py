@@ -16,7 +16,7 @@ class Triangle(Figure):
         return f'{self.name} with {self.a}, {self.b} and {self.c} sides'
 
     def draw(self):
-        return f'Drawing {self.name}: {self.__repr__()}'
+        print(f'Drawing {self.name}: {self.__repr__()}')
 
 
 class Rectangle(Figure):
@@ -31,7 +31,7 @@ class Rectangle(Figure):
 
     def draw(self):
         #raise f'Тестовое багло'
-        return f'Drawing {self.name}: {self.__repr__()}'
+        print(f'Drawing {self.name}: {self.__repr__()}')
 
 
 class Circle(Figure):
@@ -45,7 +45,7 @@ class Circle(Figure):
         return f'{self.name} with center in {self.center} and {self.radius} radius'
 
     def draw(self):
-        return f'Drawing {self.name}: {self.__repr__()}'
+        print(f'Drawing {self.name}: {self.__repr__()}')
 
 
 class Engine2D:
@@ -63,26 +63,33 @@ class Engine2D:
             return None
         while self.canvas:
             try:
-                if self.color:
-                    print(self.canvas[0].draw() + f', {self.color} color.')
-                else:
-                    print(self.canvas[0].draw() + '.')
+                self.canvas[0].draw(), print(f'{self.color} color' if self.color else f'')
                 self.canvas.pop(0)
-            except:
+            except Exception:
                 print(f'Что-то пошло не так, отрисовка фигуры невозможна.')
                 self.canvas[0].draw()
 
-                '''
-                Hа случай, если нужно продолжать работу, при возникновении ошибки:
+                #Hа случай, если нужно продолжать работу, при возникновении ошибки:
                 
-                print(f'Что-то пошло не так, отрисовка фигуры невозможна.')
-                self.canvas.pop(0)
-                '''
+                #print(f'Что-то пошло не так, отрисовка фигуры невозможна.')
+                #self.canvas.pop(0)
 
     def set_color(self, color: str):
         self.color = color
 
 
+if __name__ == '__main__':
+    engine = Engine2D()
+    tr = Triangle(10, 10, 10)
+    cr = Circle((0, 0), 5)
+    rc = Rectangle(10, 10)
+    engine.add(tr)
+    engine.add(cr)
+    engine.set_color('green')
+    engine.add(rc)
+    engine.add(tr)
+    engine.set_color('blue')
+    engine.draw()
 
 
 

@@ -1,6 +1,9 @@
 """
 3. Есть функция:
 """
+from functools import wraps
+from time import perf_counter
+from typing import Any
 
 
 def add_gold(value):
@@ -16,47 +19,31 @@ def add_gold(value):
 """
 
 
-def add_some_gold(value: int) -> str:
-    need_gold = value
-    func_works_gold = 1
-    maximum_gold = 1
-    diff_gold = 2
-    count = 0
-    i = 0
-    flag = False
+def add_some_gold(value):
+    need_gold = value #Необходимое кол-во голды
+    working_gold = need_gold #Кол-во голды, при котором функция add_gold() не райзит ошыбку
+    check_gold = working_gold / 2 #Параметр уточнения кол-ва голды, нужен для поиска максимальной для начисления голды
 
-    while count != 1_000_000:
+    while need_gold:
         try:
-            add_gold(func_works_gold)
-            maximum_gold = func_works_gold
-            func_works_gold *= 2
-        except RuntimeError:
-            while not add_gold(round(maximum_gold)):
-                try:
-                    add_gold(round(maximum_gold) + round(maximum_gold / diff_gold))
-                    maximum_gold += round(maximum_gold / diff_gold)
-                except RuntimeError:
-                    diff_gold += 1
-                    if i == 100:
-                        flag = True
-                        break
-                    i += 1
-                    continue
-        count += 1
-
-        if flag:
+            add_gold(working_gold)
+            need_gold -= working_gold
             break
+        except RuntimeError:
+            working_gold = working_gold / 2
+            check_gold = working_gold / 2
 
-    print()
-    print(f'К максимальному кол-ву золота, возможному к начислению, максимально приближено {maximum_gold} едениц золота.')
-
-    while need_gold > 0:
-        if maximum_gold > need_gold:
+    while need_gold >= 0:
+        if need_gold <= working_gold:
             add_gold(need_gold)
             break
-        else:
-            add_gold(maximum_gold)
-            need_gold -= maximum_gold
+        try:
+            add_gold(working_gold + check_gold)
+            need_gold -= (working_gold + check_gold)
+            working_gold += check_gold
+            check_gold = working_gold / 2
+        except RuntimeError:
+            check_gold = check_gold / 2
 
 
 if __name__ == '__main__':
