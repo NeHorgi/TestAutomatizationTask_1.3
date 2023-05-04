@@ -18,6 +18,18 @@ class Ship:
     hull: str
     engine: str
 
+    def change_random_component(self):
+        component = random.choice([1, 2, 3])
+        if component == 1:
+            self.weapon = f'Weapon-{random.randint(1, Constants.weapons)}'
+            return self.weapon
+        elif component == 2:
+            self.hull = f'Hull-{random.randint(1, Constants.hulls)}'
+            return self.hull
+        else:
+            self.engine = f'Engine-{random.randint(1, Constants.engines)}'
+            return self.engine
+
 
 @dataclass
 class Weapon:
@@ -37,6 +49,26 @@ class Weapon:
 
         return self.reload_speed, self.rotational_speed, self.diameter, self.power_volley, self.count
 
+    def change_random_parameter(self):
+        changed_parameter = random.choice([self.reload_speed, self.rotational_speed, self.diameter, self.power_volley, self.count])
+        random_count = random.randint(1, Constants.max_value_of_params)
+
+        if changed_parameter == self.reload_speed:
+            self.reload_speed = random_count
+            return self.reload_speed
+        elif changed_parameter == self.rotational_speed:
+            self.rotational_speed = random_count
+            return self.rotational_speed
+        elif changed_parameter == self.diameter:
+            self.diameter = random_count
+            return self.diameter
+        elif changed_parameter == self.power_volley:
+            self.power_volley = random_count
+            return self.reload_speed
+        else:
+            self.count = random_count
+            return self.count
+
 
 @dataclass
 class Hull:
@@ -52,6 +84,20 @@ class Hull:
 
         return self.armor, self.type, self.capacity
 
+    def change_random_parameter(self):
+        changed_parameter = random.choice([self.armor, self.type, self.capacity])
+        random_count = random.randint(1, Constants.max_value_of_params)
+
+        if changed_parameter == self.armor:
+            self.armor = random_count
+            return self.armor
+        elif changed_parameter == self.type:
+            self.type = random_count
+            return self.type
+        else:
+            self.capacity = random_count
+            return self.capacity
+
 
 @dataclass
 class Engine:
@@ -64,6 +110,17 @@ class Engine:
         self.type = random.randint(1, Constants.max_value_of_params)
 
         return self.power, self.type
+
+    def change_random_parameter(self):
+        changed_parameter = random.choice([self.power, self.type])
+        random_count = random.randint(1, Constants.max_value_of_params)
+
+        if changed_parameter == self.power:
+            self.power = random_count
+            return self.power
+        else:
+            self.type = random_count
+            return self.type
 
 
 def create_and_fill_db():
@@ -144,6 +201,24 @@ def create_and_fill_db():
 
     return 'ships.db'
 
+
+if __name__ == '__main__':
+    a = Weapon('gun', 1, 2, 3, 4, 5)
+    print(a)
+    a.change_random_parameter()
+    print(a)
+    b = Engine('eng', 1, 2)
+    print(b)
+    b.change_random_parameter()
+    print(b)
+    c = Hull('hul', 1, 2, 3)
+    print(c)
+    c.change_random_parameter()
+    print(c)
+    s = Ship('ship-1', 'weapon-1', 'hull-1', 'engine-1')
+    print(s)
+    s.change_random_component()
+    print(s)
 
 
 
