@@ -202,23 +202,6 @@ def create_and_fill_db():
     return 'ships.db'
 
 
-if __name__ == '__main__':
-    a = Weapon('gun', 1, 2, 3, 4, 5)
-    print(a)
-    a.change_random_parameter()
-    print(a)
-    b = Engine('eng', 1, 2)
-    print(b)
-    b.change_random_parameter()
-    print(b)
-    c = Hull('hul', 1, 2, 3)
-    print(c)
-    c.change_random_parameter()
-    print(c)
-    s = Ship('ship-1', 'weapon-1', 'hull-1', 'engine-1')
-    print(s)
-    s.change_random_component()
-    print(s)
 
 
 
