@@ -46,25 +46,13 @@ class GenerateMapFromCiv:
                 except IndexError:
                     break
 
-        for i in self.map:
-            print(*i)
-
-
-
-
-
-
-
-
-
-
-
-
-
+                    
+        return self.map
 
 
 if __name__ == '__main__':
     a = int(input())
     b = int(input())
     CurrentMap = GenerateMapFromCiv(a, b)
-    CurrentMap.create_pangea()
+    for i in CurrentMap.create_pangea():
+        print(i)
