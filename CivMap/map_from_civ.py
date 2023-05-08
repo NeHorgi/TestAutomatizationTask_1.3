@@ -46,13 +46,46 @@ class GenerateMapFromCiv:
                 except IndexError:
                     break
 
-                    
         return self.map
+
+    def create_islands(self):
+        if self.x >= self.y:
+            islands_in_row = len(self.ground_percent) // self.x
+        else:
+            islands_in_row = len(self.ground_percent) // self.y
+
+        for row in range(len(self.map)):
+            current_islands = islands_in_row
+            for tile in range(len(self.map[row])):
+                chance = random.randint(0, 2)
+                if current_islands:
+                    if not chance:
+                        self.map[row][tile] = '∎'
+                        current_islands -= 1
+                        self.ground_percent.pop(0)
+                    else:
+                        pass
+
+        if not self.ground_percent:
+            return self.map
+        else:
+            while self.ground_percent:
+                island = random.randint(0, len(self.map) - 1)
+                tile = random.randint(0, len(self.map[0]) - 1)
+
+                if self.map[island][tile] != '∎':
+                    self.map[island][tile] = '∎'
+                    self.ground_percent.pop(0)
+
+        return self.map
+
 
 
 if __name__ == '__main__':
     a = int(input())
     b = int(input())
     CurrentMap = GenerateMapFromCiv(a, b)
-    for i in CurrentMap.create_pangea():
+    #for i in CurrentMap.create_pangea():
+    #    print(i)
+    for i in CurrentMap.create_islands():
         print(i)
