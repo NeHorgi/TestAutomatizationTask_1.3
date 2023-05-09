@@ -1,6 +1,22 @@
 import random
 
 
+def start():
+    print(f'Введите размеры карты')
+    a = int(input())
+    b = int(input())
+    CurrentMap = GenerateMapFromCiv(a, b)
+    print(f'Выберите тип карты: 1 - Пангея, 2 - Острова, 3 - Континенты')
+    c = input()
+    if c == '1':
+        CurrentMap.create_pangea()
+    elif c == '2':
+        CurrentMap.create_islands()
+    elif c == '3':
+        CurrentMap.create_continents()
+    CurrentMap.show_map()
+
+
 class GenerateMapFromCiv:
 
     def __init__(self, x: int, y: int):
@@ -84,7 +100,6 @@ class GenerateMapFromCiv:
     def create_continents(self):
         first_continent = []
         second_continent = []
-        lands = self.ground_percent
 
         count_of_lands_first_continent = len(self.ground_percent) // 2
         count_of_lands_second_continent = len(self.ground_percent) - count_of_lands_first_continent
@@ -148,14 +163,10 @@ class GenerateMapFromCiv:
 
         return self.map
 
+    def show_map(self):
+        for row in self.map:
+            print(row)
+
 
 if __name__ == '__main__':
-    a = int(input())
-    b = int(input())
-    CurrentMap = GenerateMapFromCiv(a, b)
-    #for i in CurrentMap.create_pangea():
-    #    print(i)
-    #for i in CurrentMap.create_islands():
-    #    print(i)
-    #for i in CurrentMap.create_continents():
-    #    print(i)
+    start()
