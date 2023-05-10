@@ -2,7 +2,7 @@ import random
 
 
 def start():
-    print(f'Введите размеры карты')
+    print(f'Введите границы карты (Целые числа, по одному)')
     a = int(input())
     b = int(input())
     CurrentMap = GenerateMapFromCiv(a, b)
@@ -26,43 +26,30 @@ class GenerateMapFromCiv:
         self.map = [['~' for _ in range(self.x)] for _ in range(self.y)]
 
     def create_pangea(self):
-        pangea = []
-        pangea_x = round(self.x / 1.4)
-        pangea_y = round(self.y / 1.4)
-        for i in range(pangea_x):
-            row = []
-            for j in range(pangea_y):
-                row.append('~')
-            pangea.append(row)
 
-        for i in range(len(pangea)):
-            for j in range(len(pangea[i])):
-                if (len(pangea) // 2.5) <= i < len(pangea) - len(pangea) // 2.5:
-                    if (len(pangea) // 2.5) <= j < len(pangea) - len(pangea) // 2.5:
-                        if not self.ground_percent:
-                            break
-                        pangea[i][j] = self.ground_percent.pop()
+        count_of_lands = len(self.ground_percent)
 
-        for i in range(len(pangea)):
-            for j in range(len(pangea[i])):
-                chance = random.randint(0, 1)
-                if chance:
-                    if pangea[i][j] == '~':
-                        try:
-                            pangea[i][j] = self.ground_percent.pop(0)
-                        except IndexError:
-                            break
-
-        row = 0
         for i in range(len(self.map)):
-            if self.x // 2 - pangea_x // 2 <= i <= self.x // 2 + pangea_x // 2:
-                try:
-                    self.map[i][self.y // 2 - pangea_y // 2:(self.y // 2 + pangea_y // 2)] = pangea[row]
-                    if len(self.map[i]) > len(self.map[i - 1]):
-                        self.map[i].pop(-1)
-                    row += 1
-                except IndexError:
-                    break
+            for j in range(len(self.map[i])):
+                if len(self.map) // 3 <= i <= len(self.map) - len(self.map) // 2.5:
+                    if len(self.map[i]) // 3 <= j <= len(self.map[i]) // 1.5:
+                        if not count_of_lands:
+                            break
+                        self.map[i][j] = self.ground_percent.pop(0)
+                        count_of_lands -= 1
+
+        while count_of_lands:
+            for i in range(len(self.map)):
+                for j in range(len(self.map[i])):
+                    if len(self.map) // (len(self.map) // 2) <= i <= len(self.map) // 1.2:
+                        if len(self.map) // (len(self.map) // 2) <= j <= len(self.map) // 1.2:
+                            if not count_of_lands:
+                                break
+                            chance = random.randint(0, 2)
+                            if not chance:
+                                if self.map[i][j] != '∎':
+                                    self.map[i][j] = self.ground_percent.pop(0)
+                                    count_of_lands -= 1
 
         return self.map
 
@@ -72,13 +59,13 @@ class GenerateMapFromCiv:
         else:
             islands_in_row = len(self.ground_percent) // self.y
 
-        for row in range(len(self.map)):
+        for i in range(len(self.map)):
             current_islands = islands_in_row
-            for tile in range(len(self.map[row])):
+            for j in range(len(self.map[i])):
                 chance = random.randint(0, 2)
                 if current_islands:
                     if not chance:
-                        self.map[row][tile] = '∎'
+                        self.map[i][j] = '∎'
                         current_islands -= 1
                         self.ground_percent.pop(0)
                     else:
@@ -117,7 +104,7 @@ class GenerateMapFromCiv:
         for i in range(len(first_continent)):
             for j in range(len(first_continent[i])):
                 if (len(first_continent) // 3) <= i <= len(first_continent) - len(first_continent) // 2.5:
-                    if j == len(first_continent[i]) // 2:
+                    if len(first_continent[i]) // 3 <= j <= len(first_continent[i]) // 2:
                         if not count_of_lands_first_continent:
                             break
                         first_continent[i][j] = self.ground_percent.pop(0)
@@ -142,7 +129,7 @@ class GenerateMapFromCiv:
         for i in range(len(second_continent)):
             for j in range(len(second_continent[i])):
                 if (len(second_continent) // 3) <= i <= len(second_continent) - len(second_continent) // 2.5:
-                    if j == len(second_continent[i]) // 2:
+                    if len(second_continent[i]) // 3 <= j <= len(second_continent[i]) // 2:
                         if not self.ground_percent:
                             break
                         second_continent[i][j] = self.ground_percent.pop(0)
