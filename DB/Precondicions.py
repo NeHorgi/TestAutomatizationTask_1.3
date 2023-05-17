@@ -24,9 +24,9 @@ def create_random_value():
 @dataclass
 class Ship:
     ship_name: str
-    weapon: str
-    hull: str
-    engine: str
+    weapon: str = None
+    hull: str = None
+    engine: str = None
 
     def change_random_component(self):
         attributes = [a for a in inspect.getmembers(self, lambda a: not(inspect.isroutine(a))) if not(a[0].startswith('__') and a[0].endswith('__'))]
@@ -101,28 +101,3 @@ class Engine:
         random_attribute = random.choice([a for a in inspect.getmembers(self, lambda a: not(inspect.isroutine(a))) if not(a[0].startswith('__') and a[0].endswith('__'))][1:])
         setattr(self, random_attribute[0], create_random_value())
 
-
-"""
-conn = sqlite3.connect('ships.db')
-cur = conn.cursor()
-
-select = f'''SELECT ship FROM ships'''
-parameters_for_test = []
-
-for ship in cur.execute(select).fetchall():
-    parameters_for_test.append(str(ship))
-    print(type(ship))
-
-print(parameters_for_test)
-"""
-
-# if __name__ == '__main__':
-#     conn = sqlite3.connect('ships.db')
-#     cur = conn.cursor()
-#     parameters_for_test = []
-#     select = f'''SELECT ship FROM ships;'''
-#
-#     for ship in cur.execute(select).fetchall():
-#         parameters_for_test.append(ship)
-#
-#     print(parameters_for_test)

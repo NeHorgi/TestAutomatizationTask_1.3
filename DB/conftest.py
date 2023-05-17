@@ -159,15 +159,6 @@ def create_changed_conn_and_cur():
     return cur_changed
 
 
-@pytest.fixture(scope='session')
-def create_parameters_for_test(create_and_fill_db):
-    conn = sqlite3.connect('ships.db')
-    cur = conn.cursor()
-    parameters_for_test = []
-    select = f'''SELECT ship FROM ships;'''
 
-    for ship in cur.execute(select).fetchall():
-        parameters_for_test.append(ship)
-        yield ship
 
 
