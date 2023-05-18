@@ -3,7 +3,7 @@ import sqlite3
 
 import pytest
 
-from Precondicions import Ship, Weapon, Hull, Engine
+from precondicions import Ship, Weapon, Hull, Engine
 
 
 @pytest.fixture(scope='session')
