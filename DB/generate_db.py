@@ -81,8 +81,8 @@ def create_and_fill_db():
     conn.commit()
 
 
-if __name__ == '__main__':
-    create_and_fill_db()
+# if __name__ == '__main__':
+#     create_and_fill_db()
 
 
 
