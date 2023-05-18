@@ -1,89 +1,9 @@
-import random
 import shutil
 import sqlite3
 
 import pytest
 
-from Precondicions import Constants
 from Precondicions import Ship, Weapon, Hull, Engine
-
-
-@pytest.fixture(scope='session')
-def create_and_fill_db():
-    conn = sqlite3.connect('ships.db')
-    cur = conn.cursor()
-
-    cur.execute('''CREATE TABLE IF NOT EXISTS ships(
-        "ship" TEXT PRIMARY KEY,
-        "weapon" TEXT,
-        "hull" TEXT,
-        "engine" TEXT);
-    ''')
-
-    cur.execute('''CREATE TABLE IF NOT EXISTS weapons(
-        "weapon" TEXT PRIMARY KEY,
-        "reload_speed" INTEGER, 
-        "rotational_speed" INTEGER,
-        "diameter" INTEGER,
-        "power_volley" INTEGER,
-        "count" INTEGER,
-        FOREIGN KEY (weapon) REFERENCES ships (weapon));
-    ''')
-
-    cur.execute('''CREATE TABLE IF NOT EXISTS engines(
-        "engine" TEXT PRIMARY KEY,
-        "power" INTEGER,
-        "type" INTEGER,
-        FOREIGN KEY (engine) REFERENCES ships (engine));
-    ''')
-
-    cur.execute('''CREATE TABLE IF NOT EXISTS hulls(
-        "hull" TEXT PRIMARY KEY,
-        "armor" INTEGER,
-        "type" INTEGER,
-        "capacity" INTEGER,
-        FOREIGN KEY (hull) REFERENCES ships (hull));
-    ''')
-
-    conn.commit()
-
-    for ship_index in range(1, Constants.ships + 1):
-        ship = Ship(f'Ship-{ship_index}',
-                    f'Weapon-{random.randint(1, Constants.weapons)}',
-                    f'Hull-{random.randint(1, Constants.hulls)}',
-                    f'Engine-{random.randint(1, Constants.engines)}'
-                    )
-        cur.execute(f'''INSERT INTO "ships" VALUES('{ship.ship_name}',
-                                                   '{ship.weapon}',
-                                                   '{ship.hull}',
-                                                   '{ship.engine}');''')
-
-    for weapon_index in range(1, Constants.weapons + 1):
-        weapon = Weapon(f'Weapon-{weapon_index}')
-        weapon.generate_random_parameters()
-        cur.execute(f'''INSERT INTO "weapons" VALUES('{weapon.weapon_name}',
-                                                     '{weapon.reload_speed}',
-                                                     '{weapon.rotational_speed}', 
-                                                     '{weapon.diameter}',
-                                                     '{weapon.power_volley}',
-                                                     '{weapon.count}');''')
-
-    for hull_index in range(1, Constants.hulls + 1):
-        hull = Hull(f'Hull-{hull_index}')
-        hull.generate_random_parameters()
-        cur.execute(f'''INSERT INTO "hulls" VALUES('{hull.hull_name}',
-                                                   '{hull.armor}', 
-                                                   '{hull.type}', 
-                                                   '{hull.capacity}');''')
-
-    for engine_index in range(1, Constants.engines + 1):
-        engine = Engine(f'Engine-{engine_index}')
-        engine.generate_random_parameters()
-        cur.execute(f'''INSERT INTO "engines" VALUES('{engine.engine_name}',
-                                                     '{engine.power}',
-                                                     '{engine.type}');''')
-
-    conn.commit()
 
 
 @pytest.fixture(scope='session')
@@ -159,6 +79,15 @@ def create_changed_conn_and_cur():
     return cur_changed
 
 
+def create_parameters():
+    conn = sqlite3.connect('ships.db')
+    cur = conn.cursor()
+    select = f'''SELECT ship FROM ships;'''
+    parameter_for_test = cur.execute(select).fetchall()
+
+    return parameter_for_test
 
 
-
+def pytest_generate_tests(metafunc):
+    if 'ship' in metafunc.fixturenames:
+        metafunc.parametrize('ship', create_parameters())

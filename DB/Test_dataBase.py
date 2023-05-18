@@ -1,17 +1,12 @@
 import inspect
 
-import pytest
-
 from Precondicions import Constants, Weapon, Engine, Hull
 
 
 class TestDB:
 
-    parameters_for_test = [f'Ship-{i}' for i in range(1, Constants.ships + 1)]
-
-    @pytest.mark.parametrize('ship', parameters_for_test)
-    def test_check_weapon(self, ship, create_original_conn_and_cur, create_changed_conn_and_cur, create_and_fill_db, create_temporary_db):
-        select_ship = f'''SELECT weapon FROM ships WHERE ship = '{ship}';'''
+    def test_check_weapon(self, ship, create_original_conn_and_cur, create_changed_conn_and_cur, create_temporary_db):
+        select_ship = f'''SELECT weapon FROM ships WHERE ship = '{str(*ship)}';'''
         original_weapon = create_original_conn_and_cur.execute(select_ship).fetchall()
         changed_weapon = create_changed_conn_and_cur.execute(select_ship).fetchall()
 
@@ -37,9 +32,8 @@ class TestDB:
                 f"{str(*changed_weapon[0])}"
             assert original_weapon == changed_weapon, error
 
-    @pytest.mark.parametrize('ship', parameters_for_test)
-    def test_check_engine(self, ship, create_original_conn_and_cur, create_changed_conn_and_cur, create_and_fill_db, create_temporary_db):
-        select_ship = f'''SELECT engine FROM ships WHERE ship = '{ship}';'''
+    def test_check_engine(self, ship, create_original_conn_and_cur, create_changed_conn_and_cur, create_temporary_db):
+        select_ship = f'''SELECT engine FROM ships WHERE ship = '{str(*ship)}';'''
         original_engine = create_original_conn_and_cur.execute(select_ship).fetchall()
         changed_engine = create_changed_conn_and_cur.execute(select_ship).fetchall()
 
@@ -65,9 +59,8 @@ class TestDB:
                 f"{str(*changed_engine[0])}"
             assert original_engine == changed_engine, error
 
-    @pytest.mark.parametrize('ship', parameters_for_test)
-    def test_check_hull(self, ship, create_original_conn_and_cur, create_changed_conn_and_cur, create_and_fill_db, create_temporary_db):
-        select_ship = f'''SELECT hull FROM ships WHERE ship = '{ship}';'''
+    def test_check_hull(self, ship, create_original_conn_and_cur, create_changed_conn_and_cur, create_temporary_db):
+        select_ship = f'''SELECT hull FROM ships WHERE ship = '{str(*ship)}';'''
         original_hull = create_original_conn_and_cur.execute(select_ship).fetchall()
         changed_hull = create_changed_conn_and_cur.execute(select_ship).fetchall()
 
