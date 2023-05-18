@@ -1,7 +1,7 @@
 import random
 import sqlite3
 
-from Precondicions import Constants, Ship, Weapon, Hull, Engine
+from precondicions import Constants, Ship, Weapon, Hull, Engine
 
 
 def create_and_fill_db():
