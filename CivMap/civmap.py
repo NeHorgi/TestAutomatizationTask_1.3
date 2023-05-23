@@ -6,10 +6,14 @@ def start():
     a = int(input())
     print('Введите ширину карты')
     b = int(input())
-    current_map = GenerateMapFromCiv(a, b)
+    current_map = CreatingMapFromCiv(a, b)
     current_map.create_empty_map()
     print(f'Выберите тип карты: 1 - Пангея, 2 - Острова, 3 - Континенты')
     c = input()
+    if current_map.create_tiny_map():
+        current_map.create_tiny_map()
+        current_map.show_map()
+        return
     if c == '1':
         current_map.create_pangea()
     elif c == '2':
@@ -19,7 +23,7 @@ def start():
     current_map.show_map()
 
 
-class GenerateMapFromCiv:
+class CreatingMapFromCiv:
 
     def __init__(self, x: int, y: int):
         self.x = x
@@ -113,70 +117,109 @@ class GenerateMapFromCiv:
         return self.map
 
     def create_continents(self):
-        first_continent = []
-        second_continent = []
+        """Генерация карты с несколькими относительно большими участками суши, разделенными между собой морями
+        и проливами.
 
-        count_of_lands_first_continent = len(self.ground_percent) // 2
-        count_of_lands_second_continent = len(self.ground_percent) - count_of_lands_first_continent
+        height_border_top, height_border_bot - границы по высоте "зассыпаемой" землей части карты.
+        Беру 30% воды суммарно (и с нижнего края, и с верхнего) в границах полюсов.
 
-        a = self.x // 2
-        b = self.x - a
-        c = self.y
+        first_continent_area_start, first_continent_area_end - границы по ширине "зассыпаемой" землей части
+        карты под первый континент.
+        second_continent_area_start, second_continent_area_end - границы по ширине "зассыпаемой" землей части
+        карты под второй континент.
 
-        for _ in range(c):
-            row = []
-            for j in range(a):
-                row.append('~')
-            first_continent.append(row)
+        count_of_lands_first_continent, count_of_lands_second_continent - кол-во тайлов земли для
+        первого и второго континентов (для двух разных циклов)
+        first_continent_land_tiles, second_continent_land_tiles - списки с тайлами земли (так же
+        для двух разных циклов)
+        """
+        height_border_top = round(self.x * 0.3) // 2
+        height_border_bot = self.x - height_border_top - 1
 
-        for i in range(len(first_continent)):
-            for j in range(len(first_continent[i])):
-                if (len(first_continent) // 3) <= i <= len(first_continent) - len(first_continent) // 2.5:
-                    if len(first_continent[i]) // 3 <= j <= len(first_continent[i]) // 2:
-                        if not count_of_lands_first_continent:
-                            break
-                        first_continent[i][j] = self.ground_percent.pop(0)
-                        count_of_lands_first_continent -= 1
+        first_continent_area_start = 0
+        first_continent_area_end = self.y // 2
+        second_continent_area_start = self.y // 2
+        second_continent_area_end = self.y - 1
 
+        count_of_lands_first_continent = round(self.x * self.y * self.ground_percent // 2)
+        count_of_lands_second_continent = count_of_lands_first_continent
+        first_continent_land_tiles = ['∎' for _ in range(count_of_lands_first_continent)]
+        second_continent_land_tiles = ['∎' for _ in range(count_of_lands_second_continent)]
+
+        """Циклы определяют для себя кусок карты, в котором будут работать. Далее, в ранее отобранном 
+        куске, они определяют для себя "рабочую" область, где и генерят несколько относительно 
+        больших кусков земли.
+        На случай малых масштабов карты, или долгих провисаний циклов из-за необычных конфигураций
+        карты, добавлен счетчик, который принудительно завершит цикл.
+        """
         while count_of_lands_first_continent:
-            for i in range(len(first_continent)):
-                for j in range(len(first_continent[i])):
-                    chance = random.randint(0, 2)
-                    if not count_of_lands_first_continent:
-                        break
-                    if not chance:
-                        first_continent[i][j] = self.ground_percent.pop(0)
-                        count_of_lands_first_continent -= 1
-
-        for _ in range(c):
-            row = []
-            for j in range(b):
-                row.append('~')
-            second_continent.append(row)
-
-        for i in range(len(second_continent)):
-            for j in range(len(second_continent[i])):
-                if (len(second_continent) // 3) <= i <= len(second_continent) - len(second_continent) // 2.5:
-                    if len(second_continent[i]) // 3 <= j <= len(second_continent[i]) // 2:
-                        if not self.ground_percent:
+            check = 0
+            tiles_count = 0
+            for tiles_row in self.map:
+                if height_border_top <= tiles_count <= height_border_bot:
+                    tile_count = 0
+                    for tile in tiles_row:
+                        if tile_count > first_continent_area_end:
                             break
-                        second_continent[i][j] = self.ground_percent.pop(0)
-                        count_of_lands_second_continent -= 1
+                        if first_continent_area_start <= tile_count < first_continent_area_end:
+                            if not first_continent_land_tiles:
+                                break
+                            chance = random.randint(0, 2)
+                            if not chance:
+                                if self.map[tiles_count][tile_count] != '∎':
+                                    self.map[tiles_count][tile_count] = first_continent_land_tiles.pop(0)
+                                    count_of_lands_first_continent -= 1
+                        tile_count += 1
+                tiles_count += 1
+                check += 1
+            if check == 100:
+                break
 
         while count_of_lands_second_continent:
-            for i in range(len(second_continent)):
-                for j in range(len(second_continent[i])):
-                    chance = random.randint(0, 2)
-                    if not count_of_lands_second_continent:
-                        break
-                    if not chance:
-                        second_continent[i][j] = self.ground_percent.pop(0)
-                        count_of_lands_second_continent -= 1
-
-        for i in range(len(self.map)):
-            self.map[i] = first_continent[i] + second_continent[i]
+            check = 0
+            tiles_count = 0
+            for tiles_row in self.map:
+                if height_border_top <= tiles_count <= height_border_bot:
+                    tile_count = 0
+                    for tile in tiles_row:
+                        if second_continent_area_start < tile_count <= second_continent_area_end:
+                            if not second_continent_land_tiles:
+                                break
+                            chance = random.randint(0, 2)
+                            if not chance:
+                                if self.map[tiles_count][tile_count] != '∎':
+                                    self.map[tiles_count][tile_count] = second_continent_land_tiles.pop(0)
+                                    count_of_lands_second_continent -= 1
+                        tile_count += 1
+                tiles_count += 1
+                check += 1
+            if check == 100:
+                break
 
         return self.map
+
+    def create_tiny_map(self):
+        """Данная функция присутсвует тут только для того, чтобы обработать варианты, когда пользавателем
+        задаются слишком маленькие параметры для создания карты.
+        Соотв. для крошечной карты нет никаких отличий между континентами, остравами и тд.,
+        поэтому она генерируется абсолютно рандомно.
+        """
+        if self.x <= 2 or self.y <= 2:
+            land_tiles = ['∎' for _ in range(round(self.x * self.y * self.ground_percent))]
+            while land_tiles:
+                tiles_count = 0
+                for tiles_row in self.map:
+                    tile_count = 0
+                    for tile in tiles_row:
+                        if not land_tiles:
+                            break
+                        chance = random.randint(0, 2)
+                        if not chance:
+                            self.map[tiles_count][tile_count] = land_tiles.pop(0)
+                        tile_count += 1
+                    tiles_count += 1
+
+            return self.map
 
     def show_map(self):
         for row in self.map:
