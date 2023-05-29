@@ -1,31 +1,25 @@
 import inspect
+import random
 import sqlite3
 
-from precondicions import Weapon, Constants
+from precondicions import Weapon, Constants, Hull, Engine, Ship
 
 
 def get_cursor():
     conn = sqlite3.connect('ships1.db')
     return conn.cursor()
-#
-#
-# def commit():
-#     conn = sqlite3.connect('ships1.db')
-#     return conn.commit()
 
 
 def create_table():
 
     conn = sqlite3.connect('ships1.db')
-    #cur = conn.cursor()
-    cur = get_cursor()
+    cur = conn.cursor()
 
     cur.execute('''CREATE TABLE IF NOT EXISTS ships(
         "ship" TEXT PRIMARY KEY,
         "weapon" TEXT,
         "hull" TEXT,
-        "engine" TEXT);
-    ''')
+        "engine" TEXT);''')
 
     cur.execute('''CREATE TABLE IF NOT EXISTS weapons(
         "weapon" TEXT PRIMARY KEY,
@@ -34,32 +28,51 @@ def create_table():
         "diameter" INTEGER,
         "power_volley" INTEGER,
         "count" INTEGER,
-        FOREIGN KEY (weapon) REFERENCES ships (weapon));
-    ''')
+        FOREIGN KEY (weapon) REFERENCES ships (weapon));''')
 
     cur.execute('''CREATE TABLE IF NOT EXISTS engines(
         "engine" TEXT PRIMARY KEY,
         "power" INTEGER,
         "type" INTEGER,
-        FOREIGN KEY (engine) REFERENCES ships (engine));
-    ''')
+        FOREIGN KEY (engine) REFERENCES ships (engine));''')
 
     cur.execute('''CREATE TABLE IF NOT EXISTS hulls(
         "hull" TEXT PRIMARY KEY,
         "armor" INTEGER,
         "type" INTEGER,
         "capacity" INTEGER,
-        FOREIGN KEY (hull) REFERENCES ships (hull));
-    ''')
+        FOREIGN KEY (hull) REFERENCES ships (hull));''')
 
     for weapon_index in range(1, Constants.weapons + 1):
         weapon = Weapon(f'Weapon-{weapon_index}')
         weapon.generate_random_parameters()
-        #cur.execute(f'''INSERT INTO "weapons" VALUES('{weapon.weapon}', '{weapon.reload_speed}', '{weapon.rotational_speed}', '{weapon.diameter}', '{weapon.power_volley}', '{weapon.count}');''')
-        #print(f'''INSERT INTO "weapons" VALUES('{weapon.weapon}', '{weapon.reload_speed}', '{weapon.rotational_speed}', '{weapon.diameter}', '{weapon.power_volley}', '{weapon.count}');''')
-        print(create_selection_to_insert('weapons', weapon))
         cur.execute(create_selection_to_insert('weapons', weapon))
-        break
+
+    for hull_index in range(1, Constants.hulls + 1):
+        hull = Hull(f'Hull-{hull_index}')
+        hull.generate_random_parameters()
+        cur.execute(create_selection_to_insert('hulls', hull))
+
+    for engine_index in range(1, Constants.engines + 1):
+        engine = Engine(f'Engine-{engine_index}')
+        engine.generate_random_parameters()
+        cur.execute(create_selection_to_insert('engines', engine))
+
+    weapons_select = f'''SELECT weapon FROM weapons'''
+    weapons_from_db = cur.execute(weapons_select).fetchall()
+
+    engines_select = f'''SELECT engine FROM engines'''
+    engines_from_db = cur.execute(engines_select).fetchall()
+
+    hulls_select = f'''SELECT hull FROM hulls'''
+    hulls_from_db = cur.execute(hulls_select).fetchall()
+
+    for ship_index in range(1, Constants.ships + 1):
+        ship_construction = [f'Ship-{ship_index}']
+        for parameter in get_three_random_parameters(weapons_from_db, hulls_from_db, engines_from_db):
+            ship_construction.append(*parameter)
+        ship = Ship(*ship_construction)
+        cur.execute(create_selection_to_insert('ships', ship))
 
     conn.commit()
 
@@ -95,32 +108,17 @@ def create_selection_to_insert(table, obj):
     return select
 
 
-    # cur1 = get_cursor()
-    # attributes = get_correct_sequence_of_attributes(table, obj)
-    # str_attributes = []
-    # for attribute in attributes:
-    #     str_attributes.append(str(attribute))
-    # print(str_attributes)
-    # table_columns_str = ''
-    # for attribute in str_attributes:
-    #     table_columns_str += str(attribute) + ', '
-    # table_columns_str = table_columns_str[:-2]
-    # print(table_columns_str)
-    # select = f'''INSERT INTO "{table}" VALUES({table_columns_str});'''
-    # print(select)
-    # print(f"""INSERT INTO "weapons" VALUES('Weapon-1', '16', '2', '15', '10', '14');""")
-    #
-    # cur.execute(select)
+def create_selection_to_get_random_parameter_from_table(table, parameter):
+    select = f'''SELECT {parameter} FROM {table} ORDER BY RANDOM() LIMIT 1;'''
+    return select
+
+
+def get_three_random_parameters(list1, list2, list3):
+    result = [random.choice(list1), random.choice(list2), random.choice(list3)]
+    return result
 
 
 if __name__ == '__main__':
     create_table()
-    # weapon = Weapon('Weapon-1')
-    # weapon.generate_random_parameters()
-    # insert_into_table('weapons', weapon)
-    # commit()
-    # conn = sqlite3.connect('ships1.db')
-    # cur = conn.cursor()
-    # cur.execute("SELECT * FROM weapons")
-    # print(cur.fetchall())
+
 
