@@ -1,70 +1,23 @@
 import inspect
+import random
 import sqlite3
-
-from precondicions import Weapon, Constants
 
 
 def get_cursor():
-    conn = sqlite3.connect('ships1.db')
+    """Метод для получения курсора.
+
+    :return: Курсор для доступа к оригинальной БД
+    """
+    conn = sqlite3.connect('ships.db')
     return conn.cursor()
-#
-#
-# def commit():
-#     conn = sqlite3.connect('ships1.db')
-#     return conn.commit()
-
-
-def create_table():
-
-    conn = sqlite3.connect('ships1.db')
-    #cur = conn.cursor()
-    cur = get_cursor()
-
-    cur.execute('''CREATE TABLE IF NOT EXISTS ships(
-        "ship" TEXT PRIMARY KEY,
-        "weapon" TEXT,
-        "hull" TEXT,
-        "engine" TEXT);
-    ''')
-
-    cur.execute('''CREATE TABLE IF NOT EXISTS weapons(
-        "weapon" TEXT PRIMARY KEY,
-        "reload_speed" INTEGER, 
-        "rotational_speed" INTEGER,
-        "diameter" INTEGER,
-        "power_volley" INTEGER,
-        "count" INTEGER,
-        FOREIGN KEY (weapon) REFERENCES ships (weapon));
-    ''')
-
-    cur.execute('''CREATE TABLE IF NOT EXISTS engines(
-        "engine" TEXT PRIMARY KEY,
-        "power" INTEGER,
-        "type" INTEGER,
-        FOREIGN KEY (engine) REFERENCES ships (engine));
-    ''')
-
-    cur.execute('''CREATE TABLE IF NOT EXISTS hulls(
-        "hull" TEXT PRIMARY KEY,
-        "armor" INTEGER,
-        "type" INTEGER,
-        "capacity" INTEGER,
-        FOREIGN KEY (hull) REFERENCES ships (hull));
-    ''')
-
-    for weapon_index in range(1, Constants.weapons + 1):
-        weapon = Weapon(f'Weapon-{weapon_index}')
-        weapon.generate_random_parameters()
-        #cur.execute(f'''INSERT INTO "weapons" VALUES('{weapon.weapon}', '{weapon.reload_speed}', '{weapon.rotational_speed}', '{weapon.diameter}', '{weapon.power_volley}', '{weapon.count}');''')
-        #print(f'''INSERT INTO "weapons" VALUES('{weapon.weapon}', '{weapon.reload_speed}', '{weapon.rotational_speed}', '{weapon.diameter}', '{weapon.power_volley}', '{weapon.count}');''')
-        print(create_selection_to_insert('weapons', weapon))
-        cur.execute(create_selection_to_insert('weapons', weapon))
-        break
-
-    conn.commit()
 
 
 def get_table_columns_names(table):
+    """Метод для получения упорядоченных наименований столбцов передаваемой таблицы.
+
+    :param table: Имя таблицы
+    :return: Упорядоченный список столбцов переданной таблицы
+    """
     select = f'''PRAGMA table_info("{table}")'''
     cur = get_cursor()
     cur.execute(select)
@@ -73,11 +26,46 @@ def get_table_columns_names(table):
 
 
 def get_obj_attributes(obj):
+    """Метод для получения аттрибутов передаваемого класса.
+
+    :param obj: Обьект класса
+    :return: Список аттрибутов переданного класса
+    """
     parameters = [a for a in inspect.getmembers(obj, lambda a: not(inspect.isroutine(a))) if not(a[0].startswith('__') and a[0].endswith('__'))]
     return parameters
 
 
+def get_obj_attributes_without_mane(obj):
+    """Метод для получения аттрибутов передаваемого класса, без аттрибута с названием обьекта.
+    Необходим для получения рандомного аттрибута, который будет изменен и занесен в новую таблицу.
+
+    :param obj: Обьект класса
+    :return: Список аттрибутов переданного класса, без аттрибута с названием обьекта
+    """
+    parameters = [a for a in inspect.getmembers(obj, lambda a: not(inspect.isroutine(a))) if not(a[0].startswith('__') and a[0].endswith('__'))]
+    for parameter in parameters:
+        if parameter[0] == 'ship':
+            parameters.remove(parameter)
+    return parameters
+
+
+def get_random_obj_attribute(obj):
+    """Метод для получения рандомного аттрибута обьекта класса (Не включая аттрибут с названием класса).
+
+    :param obj: Обьект класса
+    :return: Рандомный аттрибут переданного класса (Не включая аттрибут с названием класса)
+    """
+    return random.choice(get_obj_attributes_without_mane(obj))
+
+
 def get_correct_sequence_of_attributes(table, obj):
+    """Метод для упорядочивания аттрибутов передаваемого класса, в соотв. с порядком столбцов передаваемой
+    таблицы из БД.
+
+    :param table: Имя таблицы
+    :param obj: Обьект класса
+    :return: Список аттрибутов переданного класса, упорядоченный в соотв. с порядком стобцов передаваемой таблицы из БД
+    """
     correct_sequence = []
     sequence_of_columns = get_table_columns_names(table)
     obj_attributes = get_obj_attributes(obj)
@@ -90,37 +78,42 @@ def get_correct_sequence_of_attributes(table, obj):
 
 
 def create_selection_to_insert(table, obj):
+    """Метод для внесения данных, состоящих из аттрибутов передаваемого класса, в передаваемую таблицы.
+
+    :param table: Имя таблицы
+    :param obj: Обьект класса
+    :return: Строковый запрос в БД, с указанием имени таблицы, куда будет сделана запись, и значениями,
+    являющимися упорядоченными в соотв. с порядком столбоцов в передаваемой таблице
+    """
     data = get_correct_sequence_of_attributes(table, obj)
-    select = f"""INSERT INTO "{table}" VALUES{tuple(data)};"""
+    select = f'''INSERT INTO "{table}" VALUES{tuple(data)};'''
     return select
 
 
-    # cur1 = get_cursor()
-    # attributes = get_correct_sequence_of_attributes(table, obj)
-    # str_attributes = []
-    # for attribute in attributes:
-    #     str_attributes.append(str(attribute))
-    # print(str_attributes)
-    # table_columns_str = ''
-    # for attribute in str_attributes:
-    #     table_columns_str += str(attribute) + ', '
-    # table_columns_str = table_columns_str[:-2]
-    # print(table_columns_str)
-    # select = f'''INSERT INTO "{table}" VALUES({table_columns_str});'''
-    # print(select)
-    # print(f"""INSERT INTO "weapons" VALUES('Weapon-1', '16', '2', '15', '10', '14');""")
-    #
-    # cur.execute(select)
+def create_selection_to_get_random_parameter_from_table(table, parameter):
+    """Метод для получения рандомного значения столбца, из указанной таблицы.
+
+    :param table: Имя таблицы
+    :param parameter: Имя столбца
+    :return: Строковый запрос в БД, с указанием имени таблицы, от куда будет получено одно рандомное значение,
+    пиз передаваемого столбца
+    """
+    select = f'''SELECT {parameter} FROM {table} ORDER BY RANDOM() LIMIT 1;'''
+    return select
 
 
-if __name__ == '__main__':
-    create_table()
-    # weapon = Weapon('Weapon-1')
-    # weapon.generate_random_parameters()
-    # insert_into_table('weapons', weapon)
-    # commit()
-    # conn = sqlite3.connect('ships1.db')
-    # cur = conn.cursor()
-    # cur.execute("SELECT * FROM weapons")
-    # print(cur.fetchall())
+def get_three_random_parameters(list1, list2, list3):
+    """Метод для получения списка, состоящего из трех рандомных значений, полученных из трех разных списков.
+    Метод был написан для того, чтобы сократить кол-во обращений в БД, на этапе заполнения таблицы с кораблями,
+    при генерации оригинальной БД.
+
+    :param list1: Список с моделями орудий
+    :param list2: Список с моделями двигателей
+    :param list3: Список с моделями корпусов
+    :return: Список из трех рандомных моделей оридий, двигателей и корпусов. По сути, это список из
+    компанентов конкретного корабля.
+    """
+    result = [random.choice(list1), random.choice(list2), random.choice(list3)]
+    return result
+
 

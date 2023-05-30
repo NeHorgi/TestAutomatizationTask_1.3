@@ -1,6 +1,6 @@
 import inspect
 
-from precondicions import Constants, Weapon, Engine, Hull
+from precondicions import Weapon, Engine, Hull
 
 
 class TestDB:

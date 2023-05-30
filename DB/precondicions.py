@@ -1,6 +1,6 @@
 import random
 import inspect
-import sqlite3
+
 from dataclasses import dataclass
 
 
@@ -10,9 +10,6 @@ class Constants:
     hulls = 5
     engines = 6
     max_value_of_params = 20
-    weapon_models = [f'Weapon-{i}' for i in range(1, weapons + 1)]
-    hull_models = [f'Hull-{i}' for i in range(1, hulls + 1)]
-    engine_models = [f'Engine-{i}' for i in range(1, engines + 1)]
 
 
 def create_random_value():
@@ -23,30 +20,15 @@ def create_random_value():
 
 @dataclass
 class Ship:
-    ship_name: str
+    ship: str
     weapon: str = None
     hull: str = None
     engine: str = None
 
-    def change_random_component(self):
-        attributes = [a for a in inspect.getmembers(self, lambda a: not(inspect.isroutine(a))) if not(a[0].startswith('__') and a[0].endswith('__'))]
-        for attribute in attributes:
-            if attribute[0] == 'ship_name':
-                attributes.remove(attribute)
-        random_component = random.choice(attributes)
-        constant_attributes = [a for a in inspect.getmembers(Constants, lambda a: not(inspect.isroutine(a))) if not(a[0].startswith('__') and a[0].endswith('__'))]
-        for constant_attribute in constant_attributes:
-            try:
-                if random_component[1] in constant_attribute[1]:
-                    setattr(self, random_component[0], random.choice(constant_attribute[1]))
-                    break
-            except TypeError:
-                continue
-
 
 @dataclass
 class Weapon:
-    weapon_name: str
+    weapon: str
     reload_speed: int = 0
     rotational_speed: int = 0
     diameter: int = 0
@@ -67,7 +49,7 @@ class Weapon:
 
 @dataclass
 class Hull:
-    hull_name: str
+    hull: str
     armor: int = 0
     type: int = 0
     capacity: int = 0
@@ -86,7 +68,7 @@ class Hull:
 
 @dataclass
 class Engine:
-    engine_name: str
+    engine: str
     power: int = 0
     type: int = 0
 

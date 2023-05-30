@@ -3,6 +3,7 @@ import sqlite3
 
 import pytest
 
+from obertka import get_random_obj_attribute, create_selection_to_get_random_parameter_from_table
 from precondicions import Ship, Weapon, Hull, Engine
 
 
@@ -21,11 +22,13 @@ def create_temporary_db():
     records_ships = cur.fetchall()
     for record in records_ships:
         ship = Ship(*record)
-        ship.change_random_component()
-        cur.execute(f'''UPDATE "ships" 
-        SET ("weapon", "hull", "engine") = 
-        ("{ship.weapon}", "{ship.hull}", "{ship.engine}") 
-        WHERE ship = "{ship.ship_name}";''')
+        random_attribute = get_random_obj_attribute(ship)
+        new_value = str(*cur.execute(create_selection_to_get_random_parameter_from_table(random_attribute[0]+'s', random_attribute[0])).fetchall()[0])
+        setattr(ship, random_attribute[0], new_value)
+        cur.execute(f'''UPDATE "ships"
+        SET ("weapon", "hull", "engine") =
+        ("{ship.weapon}", "{ship.hull}", "{ship.engine}")
+        WHERE ship = "{ship.ship}";''')
 
     select = '''SELECT * FROM "weapons"'''
     cur.execute(select)
@@ -33,10 +36,10 @@ def create_temporary_db():
     for record in records_weapons:
         weapon = Weapon(*record)
         weapon.change_random_parameter()
-        cur.execute(f'''UPDATE "weapons" 
-        SET ("reload_speed", "rotational_speed", "diameter", "power_volley", "count") = 
-        ("{weapon.reload_speed}", "{weapon.rotational_speed}", "{weapon.diameter}", "{weapon.power_volley}", "{weapon.count}") 
-        WHERE weapon = "{weapon.weapon_name}";''')
+        cur.execute(f'''UPDATE "weapons"
+        SET ("reload_speed", "rotational_speed", "diameter", "power_volley", "count") =
+        ("{weapon.reload_speed}", "{weapon.rotational_speed}", "{weapon.diameter}", "{weapon.power_volley}", "{weapon.count}")
+        WHERE weapon = "{weapon.weapon}";''')
 
     select = '''SELECT * FROM "hulls"'''
     cur.execute(select)
@@ -44,10 +47,10 @@ def create_temporary_db():
     for record in records_hulls:
         hull = Hull(*record)
         hull.change_random_parameter()
-        cur.execute(f'''UPDATE "hulls" 
-        SET ("armor", "type", "capacity") = 
-        ("{hull.armor}", "{hull.type}", "{hull.capacity}") 
-        WHERE hull = "{hull.hull_name}";''')
+        cur.execute(f'''UPDATE "hulls"
+        SET ("armor", "type", "capacity") =
+        ("{hull.armor}", "{hull.type}", "{hull.capacity}")
+        WHERE hull = "{hull.hull}";''')
 
     select = '''SELECT * FROM "engines"'''
     cur.execute(select)
@@ -55,10 +58,10 @@ def create_temporary_db():
     for record in records_engines:
         engine = Engine(*record)
         engine.change_random_parameter()
-        cur.execute(f'''UPDATE "engines" 
-        SET ("power", "type") = 
-        ("{engine.power}", "{engine.type}") 
-        WHERE engine = "{engine.engine_name}";''')
+        cur.execute(f'''UPDATE "engines"
+        SET ("power", "type") =
+        ("{engine.power}", "{engine.type}")
+        WHERE engine = "{engine.engine}";''')
 
     conn.commit()
 
